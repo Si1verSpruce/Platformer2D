@@ -20,6 +20,7 @@ public class Player : MonoBehaviour
     private const string AnimatorIsMoveLeftName = "Is Move Left";
 
     [SerializeField] private float _acceleration;
+    [SerializeField] private float _inAirAcceleration;
     [SerializeField] private float _maxVelocity;
     [SerializeField] private float _jumpForce;
     [SerializeField] private LayerMask _platformLayer;
@@ -30,6 +31,7 @@ public class Player : MonoBehaviour
     private Animator _animator;
     private SpriteRenderer _spriteRenderer;
     private List<string> _stateNames = new List<string>();
+    private bool _isOnGround;
 
     private void Awake()
     {
@@ -48,6 +50,8 @@ public class Player : MonoBehaviour
     {
         if (Input.anyKey)
         {
+            _isOnGround = CheckIsOnGround();
+
             if (Input.GetKey(KeyCode.D))
                 Move(Direction.right, AnimatorIsMoveRightName);
 
@@ -67,13 +71,22 @@ public class Player : MonoBehaviour
     private void Move(Direction direction, string stateName)
     {
         FlipInMovementDirection(direction);
-        SwitchAnimation(stateName);
-        _velocity = Mathf.MoveTowards(_velocity, _maxVelocity * (int)direction, _acceleration * Time.deltaTime);
+
+        if (_isOnGround)
+        {
+            _velocity = Mathf.MoveTowards(_velocity, _maxVelocity * (int)direction, _acceleration * Time.deltaTime);
+            SwitchAnimation(stateName);
+        }
+        else
+        {
+            _velocity = Mathf.MoveTowards(_velocity, _maxVelocity * (int)direction, _inAirAcceleration * Time.deltaTime);
+            SwitchAnimation(AnimatorIsIdleName);
+        }
     }
 
     private void Jump()
     {
-        if (CheckIsOnGround())
+        if (_isOnGround)
             _rigidbody2D.AddForce(Vector2.up * _jumpForce, ForceMode2D.Impulse);
     }
 
