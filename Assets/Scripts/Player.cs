@@ -35,7 +35,6 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
-        _velocity = 0;
         _rigidbody2D = GetComponent<Rigidbody2D>();
         _boxCollider2D = GetComponent<BoxCollider2D>();
         _animator = GetComponent<Animator>();
