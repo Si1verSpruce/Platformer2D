@@ -67,6 +67,13 @@ public class Player : MonoBehaviour
             transform.Translate(Vector2.right * _velocity * Time.deltaTime);
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject != null)
+            if (collision.gameObject.TryGetComponent<Coin>(out Coin coin))
+                Destroy(collision.gameObject);
+    }
+
     private void Move(Direction direction, string stateName)
     {
         FlipInMovementDirection(direction);
@@ -125,8 +132,12 @@ public class Player : MonoBehaviour
     private void FlipInMovementDirection(Direction direction)
     {
         if (direction == Direction.right)
-            _spriteRenderer.flipX = false;
+        {
+            if (_spriteRenderer.flipX == true)
+                _spriteRenderer.flipX = false;
+        }
         else if (direction == Direction.left)
-            _spriteRenderer.flipX = true;
+            if (_spriteRenderer.flipX == false)
+                _spriteRenderer.flipX = true;
     }
 }

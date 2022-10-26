@@ -14,6 +14,7 @@ public class Enemy : MonoBehaviour
     private int _targetPoint;
     private SpriteRenderer _spriteRenderer;
     private Animator _animator;
+    private float _lastPositionX;
 
     private void Awake()
     {
@@ -33,7 +34,22 @@ public class Enemy : MonoBehaviour
         if (transform.position.x == target.position.x)
             SetNextTargetPoint();
 
-        FlipInMovementDirection();
+        float direction = transform.position.x - _lastPositionX;
+
+        FlipInMovementDirection(direction);
+
+        _lastPositionX = transform.position.x;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject != null)
+        {
+            GameObject enemy = collision.gameObject;
+
+            if (collision.gameObject.TryGetComponent<Player>(out Player player))
+                Destroy(enemy);
+        }
     }
 
     private void SetNextTargetPoint()
@@ -44,11 +60,15 @@ public class Enemy : MonoBehaviour
             _targetPoint++;
     }
 
-    private void FlipInMovementDirection()
+    private void FlipInMovementDirection(float direction)
     {
-        if (_velocity > 0)
-            _spriteRenderer.flipX = false;
-        else if (_velocity < 0)
-            _spriteRenderer.flipX = true;
+        if (direction > 0)
+        {
+            if (_spriteRenderer.flipX == true)
+                _spriteRenderer.flipX = false;
+        }
+        else if (direction < 0)
+            if (_spriteRenderer.flipX == false)
+                _spriteRenderer.flipX = true;
     }
 }

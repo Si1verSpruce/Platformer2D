@@ -146,7 +146,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _acceleration: 10
-  _inAirAcceleration: 3
+  _inAirAcceleration: 5
   _maxVelocity: 5
   _jumpForce: 8
   _platformLayer:
