@@ -2,15 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum Direction
+{
+    left = -1,
+    right = 1
+}
+
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(BoxCollider2D))]
 [RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(SpriteRenderer))]
 
 public class Player : MonoBehaviour
 {
-    private const string AnimatorIsMoveName = "Is Move";
-    private const string AnimatorMoveRightName = "Move Right";
-    private const string AnimatorMoveLeftName = "Move Left";
+    private const string AnimatorIsIdleName = "Is Idle";
+    private const string AnimatorIsMoveRightName = "Is Move Right";
+    private const string AnimatorIsMoveLeftName = "Is Move Left";
 
     [SerializeField] private float _acceleration;
     [SerializeField] private float _maxVelocity;
@@ -21,6 +28,8 @@ public class Player : MonoBehaviour
     private Rigidbody2D _rigidbody2D;
     private BoxCollider2D _boxCollider2D;
     private Animator _animator;
+    private SpriteRenderer _spriteRenderer;
+    private List<string> _stateNames = new List<string>();
 
     private void Awake()
     {
@@ -28,6 +37,11 @@ public class Player : MonoBehaviour
         _rigidbody2D = GetComponent<Rigidbody2D>();
         _boxCollider2D = GetComponent<BoxCollider2D>();
         _animator = GetComponent<Animator>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+
+        _stateNames.Add(AnimatorIsIdleName);
+        _stateNames.Add(AnimatorIsMoveRightName);
+        _stateNames.Add(AnimatorIsMoveLeftName);
     }
 
     private void Update()
@@ -35,10 +49,10 @@ public class Player : MonoBehaviour
         if (Input.anyKey)
         {
             if (Input.GetKey(KeyCode.D))
-                Move(true);
+                Move(Direction.right, AnimatorIsMoveRightName);
 
             if (Input.GetKey(KeyCode.A))
-                Move(false);
+                Move(Direction.left, AnimatorIsMoveRightName);
 
             if (Input.GetKeyDown(KeyCode.Space))
                 Jump();
@@ -50,26 +64,11 @@ public class Player : MonoBehaviour
             transform.Translate(Vector2.right * _velocity * Time.deltaTime);
     }
 
-    private void Move(bool isMovingRight)
+    private void Move(Direction direction, string stateName)
     {
-        _animator.SetBool(AnimatorIsMoveName, true);
-
-        if (isMovingRight)
-            MoveRight();
-        else
-            MoveLeft();
-    }
-
-    private void MoveRight()
-    {
-        _animator.SetTrigger(AnimatorMoveRightName);
-        _velocity = Mathf.MoveTowards(_velocity, _maxVelocity, _acceleration * Time.deltaTime);
-    }
-
-    private void MoveLeft()
-    {
-        _animator.SetTrigger(AnimatorMoveLeftName);
-        _velocity = Mathf.MoveTowards(_velocity, _maxVelocity * -1, _acceleration * Time.deltaTime);
+        FlipInMovementDirection(direction);
+        SwitchAnimation(stateName);
+        _velocity = Mathf.MoveTowards(_velocity, _maxVelocity * (int)direction, _acceleration * Time.deltaTime);
     }
 
     private void Jump()
@@ -93,9 +92,29 @@ public class Player : MonoBehaviour
 
     private void StopMovement()
     {
-        _animator.SetBool(AnimatorIsMoveName, false);
+        SwitchAnimation(AnimatorIsIdleName);
 
         if (_velocity != 0)
             _velocity = Mathf.MoveTowards(_velocity, 0, _acceleration * Time.deltaTime);
+    }
+
+    private void SwitchAnimation(string newStateName)
+    {
+        if (_animator.GetBool(newStateName) != true)
+        {
+            _animator.SetBool(newStateName, true);
+
+            foreach (string stateName in _stateNames)
+                if (stateName != newStateName)
+                    _animator.SetBool(stateName, false);
+        }
+    }
+
+    private void FlipInMovementDirection(Direction direction)
+    {
+        if (direction == Direction.right)
+            _spriteRenderer.flipX = false;
+        else if (direction == Direction.left)
+            _spriteRenderer.flipX = true;
     }
 }
