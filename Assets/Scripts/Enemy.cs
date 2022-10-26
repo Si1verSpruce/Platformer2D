@@ -63,12 +63,8 @@ public class Enemy : MonoBehaviour
     private void FlipInMovementDirection(float direction)
     {
         if (direction > 0)
-        {
-            if (_spriteRenderer.flipX == true)
-                _spriteRenderer.flipX = false;
-        }
+            _spriteRenderer.flipX = false;
         else if (direction < 0)
-            if (_spriteRenderer.flipX == false)
-                _spriteRenderer.flipX = true;
+            _spriteRenderer.flipX = true;
     }
 }

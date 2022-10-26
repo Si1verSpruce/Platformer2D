@@ -132,12 +132,8 @@ public class Player : MonoBehaviour
     private void FlipInMovementDirection(Direction direction)
     {
         if (direction == Direction.right)
-        {
-            if (_spriteRenderer.flipX == true)
-                _spriteRenderer.flipX = false;
-        }
+            _spriteRenderer.flipX = false;
         else if (direction == Direction.left)
-            if (_spriteRenderer.flipX == false)
-                _spriteRenderer.flipX = true;
+            _spriteRenderer.flipX = true;
     }
 }
